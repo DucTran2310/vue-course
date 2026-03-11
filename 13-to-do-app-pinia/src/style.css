@@ -1,0 +1,111 @@
+@import 'tailwindcss';
+
+/* Hoặc đơn giản hơn: */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Light theme variables */
+  .theme-light {
+    --color-background: #ffffff;
+    --color-foreground: #09090b;
+    --color-primary: #8b5cf6;
+    --color-primary-foreground: #ffffff;
+    --color-muted: #71717a;
+    --color-muted-foreground: #a1a1aa;
+    --color-border: #e4e4e7;
+    --color-input: #f4f4f5;
+    --color-card: #ffffff;
+    --color-card-border: #e4e4e7;
+  }
+
+  /* Dark theme variables */
+  .theme-dark {
+    --color-background: #09090b;
+    --color-foreground: #fafafa;
+    --color-primary: #8b5cf6;
+    --color-primary-foreground: #ffffff;
+    --color-muted: #a1a1aa;
+    --color-muted-foreground: #71717a;
+    --color-border: #27272a;
+    --color-input: #18181b;
+    --color-card: #18181b;
+    --color-card-border: #27272a;
+  }
+
+  /* System theme - will be set by JS */
+  .theme-system {
+    --color-background: light-dark(#ffffff, #09090b);
+    --color-foreground: light-dark(#09090b, #fafafa);
+    --color-primary: #8b5cf6;
+    --color-primary-foreground: #ffffff;
+    --color-muted: light-dark(#71717a, #a1a1aa);
+    --color-muted-foreground: light-dark(#a1a1aa, #71717a);
+    --color-border: light-dark(#e4e4e7, #27272a);
+    --color-input: light-dark(#f4f4f5, #18181b);
+    --color-card: light-dark(#ffffff, #18181b);
+    --color-card-border: light-dark(#e4e4e7, #27272a);
+  }
+
+  /* Apply CSS variables */
+  :root {
+    color-scheme: light dark;
+  }
+
+  [data-theme='light'] {
+    color-scheme: light;
+  }
+
+  [data-theme='dark'] {
+    color-scheme: dark;
+  }
+}
+
+@layer utilities {
+  .bg-background {
+    background-color: var(--color-background);
+  }
+  .text-foreground {
+    color: var(--color-foreground);
+  }
+  .text-primary {
+    color: var(--color-primary);
+  }
+  .bg-primary {
+    background-color: var(--color-primary);
+  }
+  .text-primary-foreground {
+    color: var(--color-primary-foreground);
+  }
+  .text-muted {
+    color: var(--color-muted);
+  }
+  .bg-muted {
+    background-color: var(--color-muted);
+  }
+  .border-border {
+    border-color: var(--color-border);
+  }
+  .bg-card {
+    background-color: var(--color-card);
+  }
+  .border-card {
+    border-color: var(--color-card-border);
+  }
+  .bg-input {
+    background-color: var(--color-input);
+  }
+}
