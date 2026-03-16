@@ -1,6 +1,37 @@
 import { authController } from "@/controllers/auth.controller.js";
 import { authenticate } from "@/middleware/auth.js";
 import { Router } from "express";
+import multer from "multer";
+import path from "path";
+
+// Configure multer for avatar upload
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "public/uploads/avatars");
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  },
+});
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: function (req, file, cb) {
+    // Accept only images
+    const filetypes = /jpeg|jpg|png|gif|webp/;
+    const mimetype = filetypes.test(file.mimetype);
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+
+    if (mimetype && extname) {
+      return cb(null, true);
+    }
+    cb(new Error("Only image files are allowed!"));
+  },
+});
 
 const router = Router();
 
@@ -308,6 +339,87 @@ router.get("/profile", authenticate, (req, res, next) => authController.getProfi
  */
 router.put("/profile", authenticate, (req, res, next) =>
   authController.updateProfile(req, res, next)
+);
+
+/**
+ * @swagger
+ * /auth/avatar:
+ *   put:
+ *     summary: Upload avatar image
+ *     description: Upload a profile picture for the current user
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               avatar:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Avatar uploaded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Avatar uploaded successfully"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     user:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                           format: uuid
+ *                         email:
+ *                           type: string
+ *                           format: email
+ *                         fullName:
+ *                           type: string
+ *                           nullable: true
+ *                         avatar:
+ *                           type: string
+ *                           example: "/uploads/avatars/1234567890-123456789.jpg"
+ *       400:
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       413:
+ *         description: File too large
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "File too large, max 5MB"
+ */
+router.put("/avatar", authenticate, upload.single("avatar"), (req, res, next) =>
+  authController.uploadAvatar(req, res, next)
 );
 
 /**

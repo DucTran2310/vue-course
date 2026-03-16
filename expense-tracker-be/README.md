@@ -26,6 +26,7 @@ Backend API cho ứng dụng Expense Tracker - được xây dựng với Node.j
 - ✅ Get User Profile
 - ✅ Update User Profile
 - ✅ Change Password
+- ✅ **Avatar Upload** (Upload ảnh profile lên Cloudinary với auto resize & optimize)
 - ✅ Protected Routes Middleware
 - ✅ Password Hashing (bcryptjs)
 - ✅ **Email Verification** (xác thực email qua link)
@@ -861,6 +862,7 @@ http://localhost:3000/api/v1
 | POST | `/auth/login` | Login user | No |
 | GET | `/auth/profile` | Get user profile | Yes |
 | PUT | `/auth/profile` | Update user profile | Yes |
+| PUT | `/auth/avatar` | Upload user avatar (to Cloudinary) | Yes |
 | PUT | `/auth/change-password` | Change password | Yes |
 | **Categories** | | | |
 | GET | `/categories` | Get all categories | Yes |

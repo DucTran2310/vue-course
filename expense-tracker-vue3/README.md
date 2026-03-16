@@ -7,6 +7,15 @@
 ### Core Features
 
 - ✅ **Dashboard** - Thống kê thu/chi với biểu đồ trực quan
+- ✅ **Authentication** - Đăng ký, đăng nhập, xác thực email
+  - Email verification qua link
+  - JWT token authentication
+  - Protected routes
+- ✅ **User Profile** - Quản lý thông tin cá nhân
+  - **Avatar Upload** - Upload ảnh profile lên Cloudinary (auto resize 500x500)
+  - **Avatar Display** - Hiển thị avatar trong header & modal
+  - Edit name, avatar
+  - Change password
 - ✅ **Quản lý giao dịch** - Thêm, sửa, xóa giao dịch
 - ✅ **Danh mục** - Phân loại chi tiêu theo danh mục
 - ✅ **Filter & Search** - Lọc và tìm kiếm giao dịch
@@ -16,7 +25,7 @@
 - ✅ **Recurring Transactions** - Giao dịch lặp lại định kỳ (Tab Lặp lại)
 - ✅ **Dark Mode** - Chế độ tối/sáng (Tailwind v4 với data-mode)
 - ✅ **Đa ngôn ngữ** - Tiếng Việt & Tiếng Anh (i18n)
-- ✅ **LocalStorage** - Lưu dữ liệu cục bộ
+- ✅ **Remote Data** - Synchronize với backend API
 - ✅ **Responsive** - Hỗ trợ mobile với TailwindCSS
 
 ### Tech Stack
@@ -29,6 +38,8 @@
 | Pinia | State management |
 | TailwindCSS v4 | Styling & Responsive (cập nhật mới) |
 | Vue I18n | Đa ngôn ngữ |
+| Vue Router | Routing & Navigation |
+| Axios | HTTP client cho API calls |
 | xlsx | Export Excel (.xlsx) |
 | jspdf | Export PDF |
 | date-fns | Xử lý ngày tháng |
@@ -122,7 +133,12 @@ expense-tracker-vue3/
 │   │   └── useFormat.ts           # Format currency, date
 │   ├── i18n/
 │   │   └── index.ts               # ⭐ Cấu hình đa ngôn ngữ (Vi/En)
+│   ├── router/
+│   │   └── index.ts               # ✨ Routing config (login/register/etc)
+│   ├── services/
+│   │   └── api.ts                 # ✨ API service (axios wrapper)
 │   ├── stores/
+│   │   ├── authStore.ts           # ✨ Auth store (login, profile, avatar)
 │   │   ├── budgetStore.ts         # ✨ Store cho ngân sách
 │   │   ├── categoryStore.ts       # Store cho danh mục
 │   │   ├── recurringStore.ts      # ✨ Store cho giao dịch lặp lại
@@ -130,7 +146,10 @@ expense-tracker-vue3/
 │   │   └── transactionStore.ts    # Store cho giao dịch
 │   ├── types/
 │   │   └── index.ts               # TypeScript types (bao gồm RecurringTransaction)
-│   ├── App.vue                    # Main component với tabs
+│   ├── views/
+│   │   ├── Login.vue              # ✨ Login page
+│   │   └── Register.vue          # ✨ Register page
+│   ├── App.vue                    # Main component với tabs & user menu
 │   ├── main.ts                    # Entry point
 │   └── style.css                  # ✨ Tailwind v4 (@import syntax)
 ├── postcss.config.js              # ⭐ PostCSS config

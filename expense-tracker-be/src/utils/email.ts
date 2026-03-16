@@ -1,4 +1,5 @@
 import { logger } from "@/utils/logger.js";
+import { google } from "googleapis";
 import nodemailer from "nodemailer";
 
 export interface EmailOptions {
@@ -9,40 +10,104 @@ export interface EmailOptions {
 }
 
 class EmailService {
-  private transporter: nodemailer.Transporter;
+  private transporter: nodemailer.Transporter | null = null;
   private from: string;
+  private oauth2Client: any;
+  private isOAuth2Configured: boolean = false;
 
   constructor() {
-    this.from = process.env.EMAIL_FROM || "noreply@expense-tracker.com";
+    this.from = process.env.EMAIL_FROM || "Expense Tracker <noreply@expense-tracker.com>";
 
-    // Configure transporter based on environment
-    if (process.env.NODE_ENV === "production") {
-      this.transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST || "smtp.gmail.com",
-        port: parseInt(process.env.SMTP_PORT || "587"),
-        secure: process.env.SMTP_SECURE === "true",
-        auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS,
-        },
-      });
+    // Check if OAuth2 is configured
+    if (
+      process.env.GOOGLE_OAUTH_CLIENT_ID &&
+      process.env.GOOGLE_OAUTH_CLIENT_SECRET &&
+      process.env.GOOGLE_OAUTH_REFRESH_TOKEN &&
+      process.env.EMAIL_USER
+    ) {
+      this.isOAuth2Configured = true;
+      this.setupOAuth2();
     } else {
-      // In development, use Ethereal (fake SMTP service for testing)
-      // Or configure real SMTP if needed
+      // Fallback to SMTP
+      this.setupSMTP();
+    }
+  }
+
+  private setupOAuth2(): void {
+    try {
+      // Create OAuth2 client
+      this.oauth2Client = new google.auth.OAuth2(
+        process.env.GOOGLE_OAUTH_CLIENT_ID,
+        process.env.GOOGLE_OAUTH_CLIENT_SECRET,
+        "https://developers.google.com/oauthplayground"
+      );
+
+      // Set refresh token
+      this.oauth2Client.setCredentials({
+        refresh_token: process.env.GOOGLE_OAUTH_REFRESH_TOKEN,
+      });
+
+      // Configure transporter with OAuth2
       this.transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST || "smtp.gmail.com",
-        port: parseInt(process.env.SMTP_PORT || "587"),
-        secure: false,
+        service: "gmail",
         auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS,
+          type: "OAuth2",
+          user: process.env.EMAIL_USER,
+          clientId: process.env.GOOGLE_OAUTH_CLIENT_ID,
+          clientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET,
+          refreshToken: process.env.GOOGLE_OAUTH_REFRESH_TOKEN,
+          accessToken: this.getAccessToken(),
+        },
+      } as any);
+
+      logger.info("Email service configured with OAuth2");
+    } catch (error) {
+      logger.error("Failed to setup OAuth2 email service", {
+        error: (error as Error).message,
+      });
+      this.setupSMTP();
+    }
+  }
+
+  private setupSMTP(): void {
+    try {
+      this.transporter = nodemailer.createTransport({
+        host: process.env.EMAIL_HOST || "smtp.gmail.com",
+        port: parseInt(process.env.EMAIL_PORT || "587"),
+        secure: process.env.EMAIL_SECURE === "true",
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASSWORD,
         },
       });
+
+      logger.info("Email service configured with SMTP");
+    } catch (error) {
+      logger.error("Failed to setup SMTP email service", {
+        error: (error as Error).message,
+      });
+    }
+  }
+
+  private async getAccessToken(): Promise<string> {
+    try {
+      const accessTokenResponse = await this.oauth2Client.getAccessToken();
+      return accessTokenResponse.token as string;
+    } catch (error) {
+      logger.error("Failed to get access token", {
+        error: (error as Error).message,
+      });
+      throw error;
     }
   }
 
   async sendEmail(options: EmailOptions): Promise<boolean> {
     try {
+      if (!this.transporter) {
+        logger.error("Email transporter not configured");
+        return false;
+      }
+
       const mailOptions: nodemailer.SendMailOptions = {
         from: this.from,
         to: options.to,
@@ -51,14 +116,15 @@ class EmailService {
         text: options.text,
       };
 
+      // If using OAuth2, refresh access token before sending
+      if (this.isOAuth2Configured) {
+        const accessToken = await this.getAccessToken();
+        (this.transporter as any).options.auth.accessToken = accessToken;
+      }
+
       const info = await this.transporter.sendMail(mailOptions);
 
       logger.success(`Email sent to ${options.to}: ${info.messageId}`);
-
-      // In development, log the preview URL for Ethereal
-      if (process.env.NODE_ENV !== "production") {
-        logger.info(`Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
-      }
 
       return true;
     } catch (error) {

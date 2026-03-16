@@ -36,6 +36,9 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Static file serving for uploaded files
+app.use(express.static("public"));
+
 // Request logging
 app.use(
   morgan("combined", {

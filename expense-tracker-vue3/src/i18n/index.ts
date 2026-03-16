@@ -138,6 +138,27 @@ const messages = {
     dark: "Tối",
     currency: "Tiền tệ",
 
+    // User Menu
+    userMenu: "Menu người dùng",
+    emailVerified: "Email đã xác thực",
+    emailNotVerified: "Email chưa xác thực",
+    lightMode: "Chế độ sáng",
+    darkMode: "Chế độ tối",
+    logout: "Đăng xuất",
+    editProfile: "Chỉnh sửa hồ sơ",
+    enterFullName: "Nhập họ tên đầy đủ",
+    saving: "Đang lưu...",
+    avatarUrl: "URL ảnh đại diện",
+    enterAvatarUrl: "Nhập URL ảnh đại diện...",
+    avatarUrlHint:
+      "Nhập URL của ảnh từ web (ví dụ: https://example.com/avatar.jpg)",
+    uploadAvatar: "Tải ảnh lên",
+    pickFile: "Chọn ảnh từ thiết bị",
+    uploading: "Đang tải lên...",
+    fileSizeLimit: "Kích thước tối đa: 5MB",
+    fileTypeError: "Chỉ chấp nhận file ảnh (JPEG, PNG, GIF, WebP)",
+    or: "hoặc",
+
     // Default
     defaultCategory: "Khác",
   },
@@ -149,7 +170,7 @@ const messages = {
     settings: "Settings",
 
     // Header
-    newTransaction: "+ New Transaction",
+    newTransaction: "New Transaction",
 
     // Tabs
     tabDashboard: "Dashboard",
@@ -157,7 +178,7 @@ const messages = {
     tabSettings: "⚙️ Settings",
     tabComparison: "Compare",
     tabBudget: "Budget",
-    tabRecurring: "🔄 Recurring",
+    tabRecurring: "Recurring",
 
     // Budget
     budgetDescription: "Manage spending limits by category",
@@ -278,6 +299,27 @@ const messages = {
     light: "Light",
     dark: "Dark",
     currency: "Currency",
+
+    // User Menu
+    userMenu: "User Menu",
+    emailVerified: "Email Verified",
+    emailNotVerified: "Email Not Verified",
+    lightMode: "Light Mode",
+    darkMode: "Dark Mode",
+    logout: "Logout",
+    editProfile: "Edit Profile",
+    enterFullName: "Enter full name",
+    saving: "Saving...",
+    avatarUrl: "Avatar URL",
+    enterAvatarUrl: "Enter avatar URL...",
+    avatarUrlHint:
+      "Enter the URL of an image from the internet (e.g., https://example.com/avatar.jpg)",
+    uploadAvatar: "Upload Image",
+    pickFile: "Pick image from device",
+    uploading: "Uploading...",
+    fileSizeLimit: "Max size: 5MB",
+    fileTypeError: "Only image files accepted (JPEG, PNG, GIF, WebP)",
+    or: "or",
 
     // Default
     defaultCategory: "Other",
