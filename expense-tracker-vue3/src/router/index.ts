@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import App from "../App.vue";
 import { useAuthStore } from "../stores/authStore";
+import ChangePassword from "../views/ChangePassword.vue";
 import Login from "../views/Login.vue";
 import Register from "../views/Register.vue";
 import VerifyEmail from "../views/VerifyEmail.vue";
@@ -32,6 +33,12 @@ const router = createRouter({
       component: VerifyEmail,
     },
     {
+      path: "/change-password",
+      name: "change-password",
+      component: ChangePassword,
+      meta: { requiresAuth: true },
+    },
+    {
       path: "/dashboard",
       name: "dashboard",
       component: App,
@@ -48,26 +55,12 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
 
-  console.log("=== Router Guard DEBUG ===");
-  console.log("To:", to.path, "Query:", to.query);
-  console.log("Token:", authStore.token);
-  console.log("User:", authStore.user);
-  console.log("Is Authenticated:", authStore.isAuthenticated);
-  console.log(
-    "Requires Auth:",
-    to.matched.some((record) => record.meta.requiresAuth),
-  );
-  console.log(
-    "Requires Guest:",
-    to.matched.some((record) => record.meta.requiresGuest),
-  );
-
   // Only initialize if we have a token and haven't initialized yet
+  // Check token first (from localStorage) before checking isAuthenticated
+  // Because user might not be loaded yet on page reload
   if (authStore.token && !authStore.isInitialized) {
-    console.log("Initializing auth...");
     try {
       await authStore.init();
-      console.log("Auth initialized successfully");
     } catch (error) {
       console.error("Failed to initialize auth:", error);
       authStore.logout();
@@ -81,10 +74,8 @@ router.beforeEach(async (to, from, next) => {
   // If trying to access root path, redirect based on auth state
   if (to.path === "/") {
     if (authStore.isAuthenticated) {
-      console.log("→ Root → DASHBOARD");
       next({ name: "dashboard" });
     } else {
-      console.log("→ Root → LOGIN");
       next({ name: "login" });
     }
     return;
@@ -92,22 +83,30 @@ router.beforeEach(async (to, from, next) => {
 
   // Protected routes - require authentication
   if (requiresAuth && !authStore.isAuthenticated) {
-    console.log("→ Redirecting to LOGIN");
-    next({
-      name: "login",
-      query: { redirect: to.fullPath },
-    });
+    // Only add redirect query if not already on a guest route
+    if (to.path !== "/login" && to.path !== "/register") {
+      next({
+        name: "login",
+        query: { redirect: to.fullPath },
+      });
+    } else {
+      next();
+    }
     return;
   }
 
   // Guest routes - redirect to dashboard if already authenticated
   if (requiresGuest && authStore.isAuthenticated) {
-    console.log("→ Redirecting to DASHBOARD");
-    next({ name: "dashboard" });
+    // If there's a redirect query, use it; otherwise go to dashboard
+    const redirectQuery = to.query.redirect as string;
+    if (redirectQuery) {
+      next({ path: redirectQuery });
+    } else {
+      next({ name: "dashboard" });
+    }
     return;
   }
 
-  console.log("→ ALLOWED");
   next();
 });
 

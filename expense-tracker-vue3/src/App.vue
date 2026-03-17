@@ -48,9 +48,7 @@
                 class="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold shadow-md hover:shadow-lg hover:scale-105 transition-all cursor-pointer overflow-hidden"
                 :title="t('userMenu')"
                 :class="
-                  !user?.avatar
-                    ? 'bg-gradient-to-br from-emerald-400 to-cyan-500'
-                    : ''
+                  !user?.avatar ? 'bg-gradient-to-br from-emerald-400 to-cyan-500' : ''
                 "
               >
                 <img
@@ -71,17 +69,13 @@
                 class="user-menu-dropdown absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50"
               >
                 <!-- User Info Header -->
-                <div
-                  class="bg-gradient-to-r from-emerald-500 to-cyan-500 px-4 py-3"
-                >
+                <div class="bg-gradient-to-r from-emerald-500 to-cyan-500 px-4 py-3">
                   <p class="text-white font-semibold text-sm">{{ userName }}</p>
                   <p class="text-white/80 text-xs truncate">{{ userEmail }}</p>
                 </div>
 
                 <!-- Email Verification Status -->
-                <div
-                  class="px-4 py-2 border-b border-gray-200 dark:border-gray-700"
-                >
+                <div class="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
                   <div
                     v-if="!user?.email_verified"
                     class="flex items-center gap-2 text-yellow-600 dark:text-yellow-400 text-sm"
@@ -106,17 +100,13 @@
                   >
                     <div class="flex items-center gap-3">
                       <span class="text-lg">{{ darkMode ? "☀️" : "🌙" }}</span>
-                      <span>{{
-                        darkMode ? t("lightMode") : t("darkMode")
-                      }}</span>
+                      <span>{{ darkMode ? t("lightMode") : t("darkMode") }}</span>
                     </div>
                     <button
                       @click="toggleDarkMode"
                       class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 cursor-pointer"
                       :class="
-                        darkMode
-                          ? 'bg-emerald-500'
-                          : 'bg-gray-300 dark:bg-gray-600'
+                        darkMode ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-gray-600'
                       "
                     >
                       <span
@@ -135,30 +125,33 @@
                     <span>{{ t("editProfile") }}</span>
                   </button>
 
+                  <!-- Change Password -->
+                  <button
+                    @click="openChangePassword"
+                    class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors"
+                  >
+                    <span class="text-lg">🔑</span>
+                    <span>{{ t("changePassword") }}</span>
+                  </button>
+
                   <!-- Language Toggle -->
                   <div
                     class="flex items-center justify-between px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300"
                   >
                     <div class="flex items-center gap-3">
                       <span class="text-lg">🌐</span>
-                      <span>{{
-                        locale === "vi" ? "Tiếng Việt" : "English"
-                      }}</span>
+                      <span>{{ locale === "vi" ? "Tiếng Việt" : "English" }}</span>
                     </div>
                     <button
                       @click="toggleLanguage"
                       class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 cursor-pointer"
                       :class="
-                        locale === 'vi'
-                          ? 'bg-blue-500'
-                          : 'bg-gray-300 dark:bg-gray-600'
+                        locale === 'vi' ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'
                       "
                     >
                       <span
                         class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200"
-                        :class="
-                          locale === 'vi' ? 'translate-x-6' : 'translate-x-1'
-                        "
+                        :class="locale === 'vi' ? 'translate-x-6' : 'translate-x-1'"
                       >
                       </span>
                     </button>
@@ -255,9 +248,7 @@
             <!-- Divider -->
             <div class="relative">
               <div class="absolute inset-0 flex items-center">
-                <div
-                  class="w-full border-t border-gray-300 dark:border-gray-600"
-                ></div>
+                <div class="w-full border-t border-gray-300 dark:border-gray-600"></div>
               </div>
               <div class="relative flex justify-center text-xs uppercase">
                 <span
@@ -289,9 +280,7 @@
                   :disabled="authStore.loading"
                   class="flex-1 px-4 py-3 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-200 dark:hover:bg-gray-600 transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
                 >
-                  <span>{{
-                    authStore.loading ? t("uploading") : t("pickFile")
-                  }}</span>
+                  <span>{{ authStore.loading ? t("uploading") : t("pickFile") }}</span>
                   <span v-if="selectedFile" class="text-green-500">✓</span>
                 </button>
               </div>
@@ -393,11 +382,7 @@
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <Transition name="fade" mode="out-in">
-        <Dashboard
-          v-if="activeTab === 'dashboard'"
-          key="dashboard"
-          @edit="handleEdit"
-        />
+        <Dashboard v-if="activeTab === 'dashboard'" key="dashboard" @edit="handleEdit" />
         <TransactionList
           v-else-if="activeTab === 'transactions'"
           key="transactions"
@@ -467,10 +452,16 @@ const openProfileEdit = () => {
   closeUserMenu();
 };
 
+// Change password action
+const openChangePassword = () => {
+  closeUserMenu();
+  router.push({ name: "change-password" });
+};
+
 const handleUpdateProfile = async () => {
   const result = await authStore.updateProfile(
     editingProfile.value.fullName,
-    editingProfile.value.avatar || undefined,
+    editingProfile.value.avatar || undefined
   );
   if (result.success) {
     showProfileEdit.value = false;
@@ -620,7 +611,7 @@ watch(
       applyUserSettings(newSettings);
     }
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 // Lifecycle - Add sample data on first load
@@ -655,24 +646,12 @@ function addSampleData() {
   transactionStore.addTransaction("Ăn trưa", 150000, "expense", 1, now);
   transactionStore.addTransaction("Đi làm xe bus", 15000, "expense", 2, now);
   transactionStore.addTransaction("Cà phê", 35000, "expense", 1, yesterday);
-  transactionStore.addTransaction(
-    "Tiền điện",
-    500000,
-    "expense",
-    5,
-    twoDaysAgo,
-  );
+  transactionStore.addTransaction("Tiền điện", 500000, "expense", 5, twoDaysAgo);
   transactionStore.addTransaction("Mua sách", 200000, "expense", 7, yesterday);
   transactionStore.addTransaction("Hội thảo online", 100000, "expense", 4, now);
   transactionStore.addTransaction("Siêu thị", 850000, "expense", 1, lastWeek);
   transactionStore.addTransaction("Xăng xe", 200000, "expense", 2, lastWeek);
-  transactionStore.addTransaction(
-    "Freelance",
-    5000000,
-    "income",
-    11,
-    lastMonth,
-  );
+  transactionStore.addTransaction("Freelance", 5000000, "income", 11, lastMonth);
 }
 </script>
 
@@ -707,9 +686,7 @@ function addSampleData() {
 /* Fade Transition */
 .fade-enter-active,
 .fade-leave-active {
-  transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .fade-enter-from {

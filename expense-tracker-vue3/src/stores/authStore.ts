@@ -262,6 +262,73 @@ export const useAuthStore = defineStore("auth", () => {
     }
   }
 
+  async function changePassword(currentPassword: string, newPassword: string) {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const response = await apiService.changePassword(
+        currentPassword,
+        newPassword,
+      );
+
+      if (response.success) {
+        return { success: true, message: response.message };
+      }
+
+      return { success: false, message: response.message };
+    } catch (err: any) {
+      error.value = err.message;
+      return { success: false, message: err.message };
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  // OTP-based password change (more secure)
+  async function requestPasswordChange(currentPassword: string) {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const response = await apiService.requestPasswordChange(currentPassword);
+
+      if (response.success) {
+        return { success: true, message: response.message };
+      }
+
+      return { success: false, message: response.message };
+    } catch (err: any) {
+      error.value = err.message;
+      return { success: false, message: err.message };
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function verifyOTPAndChangePassword(otp: string, newPassword: string) {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const response = await apiService.verifyOTPAndChangePassword(
+        otp,
+        newPassword,
+      );
+
+      if (response.success) {
+        return { success: true, message: response.message };
+      }
+
+      return { success: false, message: response.message };
+    } catch (err: any) {
+      error.value = err.message;
+      return { success: false, message: err.message };
+    } finally {
+      loading.value = false;
+    }
+  }
+
   async function logout() {
     user.value = null;
     settings.value = null;
@@ -300,6 +367,9 @@ export const useAuthStore = defineStore("auth", () => {
     fetchProfile,
     uploadAvatar,
     updateProfile,
+    changePassword,
+    requestPasswordChange,
+    verifyOTPAndChangePassword,
     logout,
     clearError,
     init,

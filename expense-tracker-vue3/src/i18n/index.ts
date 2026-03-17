@@ -161,6 +161,18 @@ const messages = {
 
     // Default
     defaultCategory: "Khác",
+
+    // Change Password
+    changePassword: "Đổi mật khẩu",
+    currentPassword: "Mật khẩu hiện tại",
+    newPassword: "Mật khẩu mới",
+    confirmPassword: "Xác nhận mật khẩu mới",
+    enterCurrentPassword: "Nhập mật khẩu hiện tại",
+    enterNewPassword: "Nhập mật khẩu mới",
+    enterConfirmPassword: "Nhập lại mật khẩu mới",
+    passwordChanged: "Mật khẩu đã được đổi thành công",
+    passwordMismatch: "Mật khẩu xác nhận không khớp",
+    passwordTooShort: "Mật khẩu mới phải có ít nhất 6 ký tự",
   },
   en: {
     // App
@@ -323,6 +335,18 @@ const messages = {
 
     // Default
     defaultCategory: "Other",
+
+    // Change Password
+    changePassword: "Change Password",
+    currentPassword: "Current Password",
+    newPassword: "New Password",
+    confirmPassword: "Confirm New Password",
+    enterCurrentPassword: "Enter current password",
+    enterNewPassword: "Enter new password",
+    enterConfirmPassword: "Re-enter new password",
+    passwordChanged: "Password changed successfully",
+    passwordMismatch: "Passwords do not match",
+    passwordTooShort: "New password must be at least 6 characters",
   },
 };
 

@@ -137,6 +137,21 @@ class ApiService {
     });
   }
 
+  // OTP-based password change (more secure)
+  async requestPasswordChange(currentPassword: string) {
+    return this.request("/auth/request-password-change", {
+      method: "POST",
+      body: JSON.stringify({ currentPassword }),
+    });
+  }
+
+  async verifyOTPAndChangePassword(otp: string, newPassword: string) {
+    return this.request("/auth/verify-otp-and-change-password", {
+      method: "POST",
+      body: JSON.stringify({ otp, newPassword }),
+    });
+  }
+
   // Categories
   async getCategories(type?: "expense" | "income") {
     const params = type ? `?type=${type}` : "";

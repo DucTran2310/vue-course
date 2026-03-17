@@ -587,6 +587,33 @@ export class AuthController {
         throw new HttpError(400, "Current password and new password are required");
       }
 
+      // Password strength validation
+      if (newPassword.length < 8) {
+        throw new HttpError(400, "New password must be at least 8 characters long");
+      }
+
+      // Check for password complexity (at least one uppercase, one lowercase, one number, one special char)
+      const hasUppercase = /[A-Z]/.test(newPassword);
+      const hasLowercase = /[a-z]/.test(newPassword);
+      const hasNumber = /[0-9]/.test(newPassword);
+      const hasSpecialChar = /[!@#$%^&*()_+\-={};':"\\|,.<>?/]/.test(newPassword);
+
+      const strengthScore = [hasUppercase, hasLowercase, hasNumber, hasSpecialChar].filter(
+        Boolean
+      ).length;
+
+      if (strengthScore < 3) {
+        throw new HttpError(
+          400,
+          "New password must contain at least 3 of the following: uppercase letters, lowercase letters, numbers, special characters"
+        );
+      }
+
+      // New password should be different from current password
+      if (currentPassword === newPassword) {
+        throw new HttpError(400, "New password must be different from current password");
+      }
+
       const userResult = await query(
         `SELECT * FROM users WHERE id = $1 AND ${getActiveRecordsFilter()}`,
         [req.user!.id]
@@ -618,9 +645,71 @@ export class AuthController {
 
       logger.info(`Password changed for user: ${user.email}`);
 
+      // Send email notification
+      try {
+        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+        const supportEmail = process.env.SUPPORT_EMAIL || "support@example.com";
+
+        await emailService.sendEmail({
+          to: user.email,
+          subject: "[Expense Tracker] Mật khẩu của bạn đã được thay đổi",
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <div style="background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%); padding: 20px; text-align: center;">
+                <h1 style="color: white; margin: 0;">🔐 Mật khẩu đã được thay đổi</h1>
+              </div>
+              <div style="padding: 30px; background-color: #f9fafb;">
+                <p style="font-size: 16px; color: #374151;">Xin chào ${user.full_name || user.email},</p>
+                <p style="font-size: 16px; color: #374151;">
+                  Chúng tôi muốn thông báo rằng mật khẩu tài khoản của bạn đã được thay đổi thành công vào lúc 
+                  <strong>${new Date().toLocaleString("vi-VN")}</strong>.
+                </p>
+                <div style="background-color: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;">
+                  <p style="margin: 0; color: #6b7280; font-size: 14px;">
+                    📍 Nếu bạn đã thực hiện việc thay đổi này, bạn không cần làm gì thêm.
+                  </p>
+                  <p style="margin: 10px 0 0 0; color: #6b7280; font-size: 14px;">
+                    ⚠️ Nếu bạn KHÔNG thực hiện việc này, vui lòng:
+                  </p>
+                  <ul style="margin: 10px 0 0 20px; color: #6b7280; font-size: 14px;">
+                    <li>Đổi mật khẩu ngay lập tức</li>
+                    <li>Liên hệ hỗ trợ tại <a href="mailto:${supportEmail}">${supportEmail}</a></li>
+                  </ul>
+                </div>
+                <p style="font-size: 14px; color: #6b7280;">
+                  Để bảo mật tài khoản của bạn:
+                </p>
+                <ul style="font-size: 14px; color: #6b7280;">
+                  <li>Không chia sẻ mật khẩu với người khác</li>
+                  <li>Sử dụng mật khẩu mạnh với ít nhất 8 ký tự</li>
+                  <li>Thường xuyên thay đổi mật khẩu</li>
+                </ul>
+                <div style="margin-top: 30px; text-align: center;">
+                  <a href="${frontendUrl}" style="display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%); color: white; text-decoration: none; border-radius: 6px; font-weight: bold;">
+                    Truy cập tài khoản của bạn
+                  </a>
+                </div>
+              </div>
+              <div style="padding: 20px; text-align: center; background-color: #f3f4f6; font-size: 12px; color: #9ca3af;">
+                <p style="margin: 0;">Đây là email tự động, vui lòng không trả lời.</p>
+                <p style="margin: 5px 0 0 0;">© ${new Date().getFullYear()} Expense Tracker. All rights reserved.</p>
+              </div>
+            </div>
+          `,
+        });
+        logger.success(`Password change notification email sent to: ${user.email}`);
+      } catch (emailError) {
+        logger.error("Failed to send password change notification email", {
+          email: user.email,
+          error: (emailError as Error).message,
+        });
+        // Continue even if email fails
+      }
+
       res.json({
         success: true,
-        message: "Password changed successfully",
+        message:
+          "Password changed successfully. A notification email has been sent to your email address.",
       });
     } catch (error) {
       next(error);

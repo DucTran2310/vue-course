@@ -200,7 +200,10 @@ const handleLogin = async () => {
   const result = await authStore.login(formData.value.email, formData.value.password);
 
   if (result.success) {
-    if (!authStore.user?.emailVerified) {
+    // Note: Backend returns email_verified (snake_case), not emailVerified
+    // Check if user exists and email is verified
+    const isEmailVerified = authStore.user?.email_verified !== false;
+    if (!isEmailVerified) {
       showResendVerification.value = true;
       router.push("/verify-email");
     } else {

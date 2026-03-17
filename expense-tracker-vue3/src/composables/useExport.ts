@@ -24,8 +24,6 @@ export function useExport() {
     transactions: Transaction[],
     filename: string = "transactions",
   ) => {
-    console.log("exportToCSV called with", transactions.length, "transactions");
-
     if (transactions.length === 0) {
       alert(t("noDataExport"));
       return;
@@ -62,7 +60,6 @@ export function useExport() {
 
     // Combine header and rows
     const csvContent = [headers.join(","), ...rows].join("\n");
-    console.log("CSV content generated");
 
     // Create blob and download
     const blob = new Blob(["\ufeff" + csvContent], {
@@ -80,7 +77,6 @@ export function useExport() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    console.log("CSV download triggered");
   };
 
   // Export to Excel using xlsx library
@@ -88,12 +84,6 @@ export function useExport() {
     transactions: Transaction[],
     filename: string = "transactions",
   ) => {
-    console.log(
-      "exportToExcel called with",
-      transactions.length,
-      "transactions",
-    );
-
     if (transactions.length === 0) {
       alert(t("noDataExport"));
       return;
@@ -102,7 +92,6 @@ export function useExport() {
     try {
       // Dynamically import xlsx
       const XLSX = await import("xlsx");
-      console.log("XLSX loaded");
 
       // Prepare data
       const data = transactions.map((transaction) => {
@@ -133,7 +122,6 @@ export function useExport() {
         wb,
         `${filename}_${new Date().toISOString().split("T")[0]}.xlsx`,
       );
-      console.log("Excel download triggered");
     } catch (error) {
       console.error("Error exporting to Excel:", error);
       alert("Lỗi khi xuất Excel: " + error);
@@ -145,8 +133,6 @@ export function useExport() {
     transactions: Transaction[],
     filename: string = "transactions",
   ) => {
-    console.log("exportToPDF called with", transactions.length, "transactions");
-
     if (transactions.length === 0) {
       alert(t("noDataExport"));
       return;
@@ -244,7 +230,6 @@ export function useExport() {
 
       // Save PDF
       doc.save(`${filename}_${new Date().toISOString().split("T")[0]}.pdf`);
-      console.log("PDF download triggered");
     } catch (error) {
       console.error("Error exporting to PDF:", error);
       alert("Lỗi khi xuất PDF: " + error);

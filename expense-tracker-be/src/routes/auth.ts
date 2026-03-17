@@ -1,5 +1,7 @@
 import { authController } from "@/controllers/auth.controller.js";
+import { passwordResetController } from "@/controllers/passwordReset.controller.js";
 import { authenticate } from "@/middleware/auth.js";
+import { rateLimiters } from "@/middleware/rateLimiter.js";
 import { Router } from "express";
 import multer from "multer";
 import path from "path";
@@ -476,7 +478,115 @@ router.put("/avatar", authenticate, upload.single("avatar"), (req, res, next) =>
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put("/change-password", authenticate, (req, res, next) =>
+// New OTP-based password change endpoints (more secure)
+/**
+ * @swagger
+ * /auth/request-password-change:
+ *   post:
+ *     summary: Request password change with OTP verification
+ *     description: Send OTP to user's email for password change verification (Step 1)
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - currentPassword
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *                 format: password
+ *                 example: "oldPassword123"
+ *     responses:
+ *       200:
+ *         description: OTP sent successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "OTP has been sent to your email address"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     otpExpiresIn:
+ *                       type: integer
+ *                       example: 600
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Invalid current password
+ */
+router.post(
+  "/request-password-change",
+  authenticate,
+  rateLimiters.changePassword,
+  (req, res, next) => passwordResetController.requestPasswordChange(req, res, next)
+);
+
+/**
+ * @swagger
+ * /auth/verify-otp-and-change-password:
+ *   post:
+ *     summary: Verify OTP and change password
+ *     description: Verify OTP and complete password change (Step 2)
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - otp
+ *               - newPassword
+ *             properties:
+ *               otp:
+ *                 type: string
+ *                 example: "123456"
+ *               newPassword:
+ *                 type: string
+ *                 format: password
+ *                 example: "newSecurePassword123!"
+ *     responses:
+ *       200:
+ *         description: Password changed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Password changed successfully"
+ *       400:
+ *         description: Invalid or expired OTP
+ *       401:
+ *         description: Unauthorized
+ */
+router.post(
+  "/verify-otp-and-change-password",
+  authenticate,
+  rateLimiters.changePassword,
+  (req, res, next) => passwordResetController.verifyOTPAndChangePassword(req, res, next)
+);
+
+// Legacy password change endpoint (kept for backward compatibility)
+router.put("/change-password", authenticate, rateLimiters.changePassword, (req, res, next) =>
   authController.changePassword(req, res, next)
 );
 
